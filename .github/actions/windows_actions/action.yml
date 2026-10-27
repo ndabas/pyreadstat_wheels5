@@ -27,9 +27,12 @@ runs:
 
     # There is no static CRT (-MT) build for ARM64, so the ARM64 libraries use the
     # dynamic CRT, as Python extensions do.
+    # WholeProgramOptimization is disabled because /GL objects can only be linked by the
+    # exact same MSVC version; the runner may build these libs and the extension with
+    # different toolsets (C1047).
     - name: build libiconv
       run: |
-        msbuild.exe libiconv-win-build/%BUILD_DIR%/libiconv.sln /property:Configuration=Release;Platform=%PLATFORM%
+        msbuild.exe libiconv-win-build/%BUILD_DIR%/libiconv.sln /property:Configuration=Release;Platform=%PLATFORM% /p:WholeProgramOptimization=false
         copy libiconv-win-build\\include\\iconv.h pyreadstat\\win_libs\\64bit
         copy libiconv-win-build\\%BUILD_DIR%\\%PLATFORM%\\Release\\libiconv-static.lib  pyreadstat\\win_libs\\64bit
       shell: cmd
@@ -39,7 +42,7 @@ runs:
 
     - name: build zlib
       run: |
-        msbuild.exe zlib-win-build/%BUILD_DIR%/zlib.sln /property:Configuration=Release;Platform=%PLATFORM%
+        msbuild.exe zlib-win-build/%BUILD_DIR%/zlib.sln /property:Configuration=Release;Platform=%PLATFORM% /p:WholeProgramOptimization=false
         copy zlib-win-build\\zlib.h pyreadstat\\win_libs\\64bit
         copy zlib-win-build\\zconf.h pyreadstat\\win_libs\\64bit
         copy zlib-win-build\\%BUILD_DIR%\\%PLATFORM%\\Release\\libz-static.lib  pyreadstat\\win_libs\\64bit
